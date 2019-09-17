@@ -1,0 +1,31 @@
+{
+  "name": "worth-it",
+  "version": "0.0.1",
+  "description": "Are these things worth my time and/or money?",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server/server.js",
+    "build": "export NODE_ENV=production; webpack",
+    "dev": "export NODE_ENV=development; concurrently \"webpack-dev-server --hotOnly\" \"nodemon server/server.js\""
+  },
+  "author": "Adam Stover",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "react": "^16.9.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "babel-loader": "^8.0.6",
+    "concurrently": "^4.1.2",
+    "webpack": "^4.40.2"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "build",
+      "client"
+    ]
+  }
+}
