@@ -41,6 +41,7 @@ module.exports = {
     // proxy: {
     //   '/api/leaders': 'http://localhost:3000',
     // },
+    contentBase: path.resolve(__dirname, './client'),
     compress: true,
     publicPath: 'http://localhost:8080/build'
   },
