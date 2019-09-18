@@ -21,12 +21,16 @@ app.use(cookieParser());
 
 // app.use('/build', express.static(path.join(__dirname, '../build')));
 
-app.post('/signup', userController.validateBody, userController.getUser, userController.createUser, (req, res) => {
+app.post('/api/signup', userController.validateBody, userController.getUser, userController.createUser, (req, res) => {
   res.sendStatus(200);
 });
 
-app.post('/login', userController.validateBody, userController.getUser, userController.verifyUser, sessionController.setSSID, (req, res) => {
-  res.status(200);
+app.get('/api/check', sessionController.checkSSID, (req, res) => {
+  res.status(200).json(res.locals.isLoggedIn);
+})
+
+app.post('/api/login', userController.validateBody, userController.getUser, userController.verifyUser, sessionController.setSSID, (req, res) => {
+  res.status(200).json(res.locals.user.username);
 });
 
 app.get('/', (req, res) => {
@@ -79,8 +83,8 @@ CREATE TABLE "things" (
 
 CREATE TABLE "users-things" (
 	"_id" serial NOT NULL,
-	"user_id" integer NOT NULL UNIQUE,
-	"thing_id" integer NOT NULL UNIQUE,
+	"user_id" integer NOT NULL,
+	"thing_id" integer NOT NULL,
 	"vote" integer NOT NULL,
 	CONSTRAINT "users-things_pk" PRIMARY KEY ("_id")
 ) WITH (
@@ -91,7 +95,7 @@ CREATE TABLE "users-things" (
 
 CREATE TABLE "sessions" (
 	"_id" serial NOT NULL,
-	"user_id" integer NOT NULL UNIQUE,
+	"user_id" integer NOT NULL,
 	"uuid" varchar(255) NOT NULL,
 	CONSTRAINT "sessions_pk" PRIMARY KEY ("_id")
 ) WITH (
@@ -106,6 +110,4 @@ ALTER TABLE "users-things" ADD CONSTRAINT "users-things_fk0" FOREIGN KEY ("user_
 ALTER TABLE "users-things" ADD CONSTRAINT "users-things_fk1" FOREIGN KEY ("thing_id") REFERENCES "things"("_id");
 
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("_id");
-
-
 */

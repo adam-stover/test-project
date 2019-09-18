@@ -30,8 +30,8 @@ sessionController.checkSSID = async (req, res, next) => {
     return next();
   }
   const query = {
-    text: `SELECT uuid FROM sessions WHERE user = $1`,
-    values: [res.locals.user.username],
+    text: `SELECT user FROM sessions WHERE uuid = $1`,
+    values: [req.cookies.ssid],
   }
   try {
     const { rows } = await db.query(query);
