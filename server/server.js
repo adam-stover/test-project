@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-console */
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -28,7 +26,7 @@ app.post('/signup', userController.validateBody, userController.getUser, userCon
 });
 
 app.post('/login', userController.validateBody, userController.getUser, userController.verifyUser, sessionController.setSSID, (req, res) => {
-  res.sendStatus(200);
+  res.status(200);
 });
 
 app.get('/', (req, res) => {
