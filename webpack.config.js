@@ -24,17 +24,16 @@ module.exports = {
           },
         },
       },
-      // {
-      //   test: /\.s[ac]ss$/i,
-      //   include: [
-      //     path.resolve(__dirname, 'client/scss'),
-      //   ],
-      //   use: [
-      //     'style-loader',
-      //     'css-loader',
-      //     'sass-loader',
-      //   ],
-      // },
+      {
+        test: /\.css/,
+        include: [
+          path.resolve(__dirname, 'client/styles'),
+        ],
+        use: [
+          'style-loader',
+          'css-loader',
+        ],
+      },
     ],
   },
   devServer: {

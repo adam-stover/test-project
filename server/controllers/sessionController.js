@@ -13,6 +13,7 @@ sessionController.setSSID = async (req, res, next) => {
   try {
     await db.query(query);
     res.cookie('ssid', ssid, { httpOnly: true });
+    res.locals.isLoggedIn = true;
     next();
   } catch (error) {
     next({
@@ -30,24 +31,53 @@ sessionController.checkSSID = async (req, res, next) => {
     return next();
   }
   const query = {
-    text: `SELECT user FROM sessions WHERE uuid = $1`,
+    text: `SELECT user_id FROM sessions WHERE uuid = $1`,
     values: [req.cookies.ssid],
   }
   try {
     const { rows } = await db.query(query);
-    if (!rows.length || rows[0].uuid !== req.cookies.ssid) {
+    if (!rows.length) {
       res.locals.isLoggedIn = false;
-      next();
-    } else {
-      res.locals.isLoggedIn = true;
-      next();
+      return next();
     }
+    query.text = `SELECT _id, username FROM users WHERE _id = $1`;
+    query.values = [rows[0].user_id];
+    const result = await db.query(query);
+    res.locals.user = result.rows[0];
+    res.locals.isLoggedIn = true;
+    next();
   } catch (error) {
     next({
       log: `checkSSID: ${error}`,
       status: 500,
       message: 'Internal error',
     });
+  }
+}
+
+sessionController.deleteSSID = async (req, res, next) => {
+  console.log('deleteSSID');
+  if (!Object.prototype.hasOwnProperty.call(req.cookies, 'ssid') || !uuid.is(req.cookies.ssid)) {
+    return next({
+      log: 'deleteSSID: name or description in body is invalid',
+      status: 400,
+      message: 'Invalid input',
+    });
+  }
+  const query = {
+    text: `DELETE FROM sessions WHERE uuid = $1`,
+    values: [req.cookies.ssid],
+  };
+  try {
+    await db.query(query);
+    res.clearCookie('ssid');
+    next();
+  } catch (error) {
+    next({
+      log: `deleteSSID: ${error}`,
+      status: 500,
+      message: 'Internal error',
+    })
   }
 }
 

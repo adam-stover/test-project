@@ -6,7 +6,7 @@ const userController = {};
 const SALT_WORK_FACTOR = 10;
 
 userController.validateBody = (req, res, next) => {
-  console.log('validateBody');
+  console.log('userController: validateBody');
   if (
     (!Object.prototype.hasOwnProperty.call(req.body, 'username') || typeof req.body.username !== 'string')
     || (!Object.prototype.hasOwnProperty.call(req.body, 'password') || typeof req.body.password !== 'string')
@@ -48,10 +48,12 @@ userController.createUser = async (req, res, next) => {
   try {
     const hash = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
     const query = {
-      text: `INSERT INTO users(username, password) VALUES($1, $2)`,
+      text: `INSERT INTO users(username, password) VALUES($1, $2) RETURNING *`,
       values: [req.body.username, hash],
     };
-    await db.query(query);
+    const { rows } = await db.query(query);
+    if (rows.length) res.locals.user = rows[0];
+    res.locals.user.password = null;
     next();
   } catch (error) {
     next({
@@ -72,7 +74,7 @@ userController.verifyUser = async (req, res, next) => {
   try {
     const match = await bcrypt.compare(req.body.password, res.locals.user.password);
     if (!match) return next({
-      log: 'Error in validateBody: username or password in body is invalid',
+      log: 'Error in verifyUser: username or password in body is invalid',
       status: 400,
       message: 'Invalid username or password',
     });
@@ -85,19 +87,5 @@ userController.verifyUser = async (req, res, next) => {
     });
   }
 }
-
-// userController.getAllUsers = async (req, res, next) => {
-//   const query = `SELECT * FROM USERS`;
-//   try {
-//     const users = await db.query(query);
-//     res.status(200).json(users.rows);
-//   } catch (error) {
-//     next({
-//       log: 'getUser: error in DB connection',
-//       status: 500,
-//       message: 'Internal error',
-//     });
-//   }
-// }
 
 module.exports = userController;
