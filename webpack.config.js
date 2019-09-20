@@ -24,23 +24,24 @@ module.exports = {
           },
         },
       },
-      // {
-      //   test: /\.s[ac]ss$/i,
-      //   include: [
-      //     path.resolve(__dirname, 'client/scss'),
-      //   ],
-      //   use: [
-      //     'style-loader',
-      //     'css-loader',
-      //     'sass-loader',
-      //   ],
-      // },
+      {
+        test: /\.css/,
+        include: [
+          path.resolve(__dirname, 'client/styles'),
+        ],
+        use: [
+          'style-loader',
+          'css-loader',
+        ],
+      },
     ],
   },
   devServer: {
-    // proxy: {
-    //   '/api/leaders': 'http://localhost:3000',
-    // },
+    proxy: {
+      '/': 'http://localhost:3000',
+      '/api': 'http://localhost:3000',
+    },
+    contentBase: path.resolve(__dirname, './client'),
     compress: true,
     publicPath: 'http://localhost:8080/build'
   },
