@@ -19,7 +19,7 @@ const defaultError = {
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// app.use('/build', express.static(path.join(__dirname, '../build')));
+app.use('/build', express.static(path.join(__dirname, '../build')));
 
 app.post('/api/signup', userController.validateBody, userController.getUser, userController.createUser, sessionController.setSSID, (req, res) => {
   if (res.locals.user) res.locals.user.password = null;

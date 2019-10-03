@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import VoteCreator from './VoteCreator';
 
 const OneThing = (props) => {
@@ -8,9 +8,9 @@ const OneThing = (props) => {
       <p><strong>{props.thing.thing}</strong></p>
       <p>{props.thing.description}</p>
       <p>Score: {props.score} (Total Votes: {props.votesForThisThing.length})</p>
-      {!didUserVote
-        && <VoteCreator userId={props.userId} name={props.thing.thing} thingId={props.thing._id} votes={props.votes} setVotes={props.setVotes} />}
+      {didUserVote
+        || <VoteCreator userId={props.userId} name={props.thing.thing} thingId={props.thing._id} votes={props.votes} setVotes={props.setVotes} />}
     </div>
 )}
 
-export default OneThing;
+export default memo(OneThing);

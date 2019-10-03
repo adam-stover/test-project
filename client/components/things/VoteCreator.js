@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 
 const VoteCreator = (props) => {
   const [vote, setVote] = useState(null);
-  const handleClick = () => {
+
+  const handleClick = async () => {
     if (!vote) return;
-    fetch('/api/votes', {
+    const options = {
       method: 'POST',
       body: JSON.stringify({
         user_id: props.userId,
@@ -14,12 +15,14 @@ const VoteCreator = (props) => {
       headers: {
         'Content-Type': 'application/json',
       },
-    })
-      .then(res => res.json())
-      .then((result) => {
-        if (result._id) props.setVotes([...props.votes, result])
-      })
-      .catch(error => console.error(error));
+    };
+    try {
+      const res = await fetch('/api/votes', options);
+      const result = await res.json();
+      if (result._id) props.setVotes([...props.votes, result])
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   const handleChange = (e) => {

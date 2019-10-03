@@ -1,41 +1,53 @@
 import React, { useState, useEffect } from "react";
-import Login from '../components/Login';
-import Signup from '../components/Signup';
-import ThingContainer from './ThingContainer';
+import MainContainer from "./MainContainer";
 
 const App = () => {
   const [user, setUser] = useState({ });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentView, setCurrentView] = useState('login');
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogout = () => {
-    fetch('/api/logout', {
+  const handleLogout = async () => {
+    const options = {
       method: 'DELETE',
       body: JSON.stringify({ user }),
       headers: { 'Content-Type': 'application/json' },
-    })
-      .then(res => {
-        if (res.status === 200) {
-          setIsAuthenticated(false);
-          setCurrentView('login');
-          setUser({ });
-        }
-      })
-      .catch(error => console.error(error));
+    };
+    try {
+      const res = await fetch('/api/logout', options);
+      console.log(res.status);
+      if (res.status === 200) {
+        setUser({ });
+        setCurrentView('login');
+        setIsAuthenticated(false);
+      }
+    } catch (err) {
+      setIsError(true);
+      console.error(err);
+    }
   }
 
   useEffect(() => {
-    fetch('/api/check')
-    .then(res => res.json())
-    .then(result => {
-      console.log(result);
-      setIsAuthenticated(result.isLoggedIn);
-      if (result.isLoggedIn === true) {
-        setUser(result.user);
-        setCurrentView('things');
+    const checkData = async () => {
+      setIsError(false);
+      setIsLoading(true);
+      try {
+        const res = await fetch('/api/check');
+        const result = await res.json();
+        if (result.isLoggedIn === true) {
+          setUser(result.user);
+          setIsAuthenticated(result.isLoggedIn);
+          setCurrentView('things');
+        }
+      } catch (err) {
+        setIsError(true);
+        console.error(err);
+      } finally {
+        setIsLoading(false);
       }
-    })
-    .catch(error => console.error(error));
+    }
+    checkData();
   }, []);
 
   return (
@@ -51,14 +63,20 @@ const App = () => {
           && <button onClick={() => handleLogout()}>Logout</button>}
       </nav>
       <div id="welcome">
-        <strong>Hello {user.username || 'stranger'}</strong>
+        <strong>Hello {user.username || 'stranger'}. Welcome to the voting of things.</strong>
       </div>
-      {currentView === 'login' && isAuthenticated === false
-        && <Login setIsAuthenticated={setIsAuthenticated} setCurrentView={setCurrentView} setUser={setUser} />}
-      {currentView === 'signup' && isAuthenticated === false
-        && <Signup setIsAuthenticated={setIsAuthenticated} setCurrentView={setCurrentView} setUser={setUser} />}
-      {currentView === 'things' && isAuthenticated === true
-        && <ThingContainer userId={user._id} />}
+      {isError && <div>Oh dear we have an error</div>}
+      {isLoading && (
+        <div>Loading...</div>
+      )}
+      <MainContainer
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        isAuthenticated={isAuthenticated}
+        setIsAuthenticated={setIsAuthenticated}
+        user={user}
+        setUser={setUser}
+      />
     </div>
   )
 }
