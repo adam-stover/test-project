@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
+import useFormInput from '../hooks/useFormInput';
 
 const Signup = (props) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const { value:username, bind:bindUsername, reset:resetUsername } = useFormInput('');
+  const { value:password, bind:bindPassword, reset:resetPassword } = useFormInput('');
   const [signupResult, setSignupResult] = useState('');
-  
-  const handleClick = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async () => {
     if (username === '' || password === '') return;
-    fetch('/api/signup', {
+    const options = {
       method: 'POST',
       body: JSON.stringify({
         username,
@@ -16,32 +18,40 @@ const Signup = (props) => {
       headers: {
         'Content-Type': 'application/json',
       },
-    })
-    .then(res => res.json())
-    .then(result => {
-      console.log(`Signup: ${result}`);
+    };
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/signup', options);
+      const result = await res.json();
+      setIsLoading(false);
+      resetUsername();
+      resetPassword();
       if (result.isLoggedIn) {
         setSignupResult('Successfully signed up!');
+        props.setUser(result.user);
         props.setIsAuthenticated(true);
         props.setCurrentView('things');
-        props.setUser(result.user);
       } else setSignupResult(result.message);
-    })
-    .catch(error => console.error(error));
+    } catch (err) {
+      setIsLoading(false);
+      console.error(err);
+    }
   }
 
   return (
-    <div>Signup
+    <div>
       <div>
         <label>Username</label>
-        <input type="text" name="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+        <input type="text" name="username" {...bindUsername} required />
       </div>
       <div>
         <label>Password</label>
-        <input type="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <input type="password" name="password" {...bindPassword} required />
       </div>
-      <button onClick={() => handleClick()}>Signup</button>
-      {signupResult}
+      <button onClick={() => handleSubmit()}>Signup</button>
+      {isLoading ? (
+        <div>Logging in...</div>
+      ) : signupResult}
     </div>
   );
 }
