@@ -1,28 +1,11 @@
 import React, { useState } from 'react';
 
-const VoteCreator = (props) => {
+const VoteCreator = ({ name, thingId, submitVote }) => {
   const [vote, setVote] = useState(null);
 
-  const handleClick = async () => {
+  const handleClick = () => {
     if (!vote) return;
-    const options = {
-      method: 'POST',
-      body: JSON.stringify({
-        user_id: props.userId,
-        thing_id: props.thingId,
-        vote: (vote === 'nay') ? 0 : 1,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-    try {
-      const res = await fetch('/api/votes', options);
-      const result = await res.json();
-      if (result._id) props.setVotes([...props.votes, result])
-    } catch (err) {
-      console.error(err);
-    }
+    submitVote(vote, thingId);
   }
 
   const handleChange = (e) => {
@@ -32,9 +15,9 @@ const VoteCreator = (props) => {
   return (
     <span>
       <label htmlFor="yay">Yay</label>
-      <input type="radio" name={props.name} value="yay" checked={vote==="yay"} onChange={handleChange} id="yay" />
+      <input type="radio" name={name} value="yay" checked={vote==="yay"} onChange={handleChange} id="yay" />
       <label htmlFor="nay">Nay</label>
-      <input type="radio" name={props.name} value="nay" checked={vote==="nay"} onChange={handleChange} id="nay" />
+      <input type="radio" name={name} value="nay" checked={vote==="nay"} onChange={handleChange} id="nay" />
       <button onClick={() => handleClick()}>Submit vote</button>
     </span>
 )}

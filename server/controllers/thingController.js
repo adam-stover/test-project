@@ -75,4 +75,33 @@ thingController.createThing = async (req, res, next) => {
   }
 };
 
+thingController.deleteThing = async (req, res, next) => {
+  console.log('deleteThing');
+  const { id } = req.params;
+  if (!id) return next({
+    log: 'deleteThing: no thing ID provided',
+    status: 400,
+    message: 'No thing ID provided',
+  });
+  const deleteRelatedVotesQuery = {
+    text: `DELETE FROM votes WHERE thing_id = $1`,
+    values: [id],
+  };
+  const deleteQuery = {
+    text: `DELETE FROM things WHERE _id = $1`,
+    values: [id],
+  };
+  try {
+    await db.query(deleteRelatedVotesQuery);
+    await db.query(deleteQuery);
+    return next();
+  } catch (err) {
+    return next({
+      log: `deleteThing: error ${err}`,
+      status: 500,
+      message: `Error deleting thing`,
+    });
+  }
+}
+
 module.exports = thingController;

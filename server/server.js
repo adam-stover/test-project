@@ -44,6 +44,10 @@ app.post('/api/things', thingController.validateBody, thingController.getThing, 
   res.status(200).json(res.locals.thing);
 });
 
+app.delete('/api/things/:id', thingController.deleteThing, (req, res) => {
+  res.sendStatus(200);
+})
+
 app.get('/api/things', thingController.getAllThings, (req, res) => {
   res.status(200).json(res.locals.things);
 });
@@ -54,6 +58,10 @@ app.post('/api/votes', voteController.validateBody, voteController.getVote, vote
 
 app.get('/api/votes', voteController.getAllVotes, (req, res) => {
   res.status(200).json(res.locals.votes);
+})
+
+app.delete('/api/votes', voteController.deleteVote, (req, res) => {
+  res.sendStatus(200);
 })
 
 app.get('/', (req, res) => {

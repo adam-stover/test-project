@@ -75,4 +75,28 @@ voteController.createVote = async (req, res, next) => {
   }
 }
 
+voteController.deleteVote = async (req, res, next) => {
+  console.log('deleteVote');
+  const { user, thing } = req.query;
+  if (!user || !thing) return next({
+    log: 'createVote: no user or thing provided',
+    status: 400,
+    message: 'no user or thing provided',
+  });
+  const deleteVoteQuery = {
+    text: `DELETE FROM votes WHERE user_id = $1 AND thing_id = $2`,
+    values: [user, thing],
+  };
+  try {
+    await db.query(deleteVoteQuery);
+    return next();
+  } catch (err) {
+    return next({
+      log: `deleteVote: error ${err}`,
+      status: 500,
+      message: `Error deleting vote`,
+    });
+  }
+}
+
 module.exports = voteController;
