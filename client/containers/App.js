@@ -1,9 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import MainContainer from './MainContainer';
+import Header from '../components/Header';
+
+export const actions = {
+  REQUEST: 'request',
+  SUCCESS: 'success',
+  FAILURE: 'failure',
+  LOGOUT: 'logout',
+};
+
+const initialState = {
+  isAuthenticated: false,
+  id: null,
+  username: '',
+  isLoading: false,
+  isError: false,
+};
+
+const userReducer = (state, { type, payload }) => {
+  switch (type) {
+    case actions.REQUEST:
+      return {
+        ...state,
+        isLoading: true,
+        isError: false,
+      };
+    case actions.SUCCESS:
+      return {
+        ...payload,
+        isLoading: false,
+        isError: false,
+      }
+    case actions.FAILURE:
+      console.error(payload);
+      return {
+        ...state,
+        isLoading: false,
+        isError: true,
+      };
+    case actions.LOGOUT:
+      return {
+        ...initialState,
+      };
+    default:
+      throw new Error('Unhandled userReducer action');
+  }
+};
+
+export const UserContext = React.createContext(null);
 
 const App = () => {
-  const [user, setUser] = useState({ });
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userData, dispatch] = useReducer(userReducer, initialState);
   const [currentView, setCurrentView] = useState('login');
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -14,30 +61,30 @@ const App = () => {
       body: JSON.stringify({ user }),
       headers: { 'Content-Type': 'application/json' },
     };
+    dispatch({ type: actions.REQUEST });
     try {
       const res = await fetch('/api/logout', options);
-      console.log(res.status);
       if (res.status === 200) {
-        setUser({ });
+        dispatch({ type: actions.LOGOUT });
         setCurrentView('login');
-        setIsAuthenticated(false);
       }
     } catch (err) {
-      setIsError(true);
-      console.error(err);
+      dispatch({ type: actions.FAILURE, payload: err });
     }
   }
 
   useEffect(() => {
     const checkData = async () => {
-      setIsError(false);
-      setIsLoading(true);
+      dispatch({ type: actions.REQUEST });
       try {
         const res = await fetch('/api/check');
         const result = await res.json();
         if (result.isLoggedIn === true) {
-          setUser(result.user);
-          setIsAuthenticated(result.isLoggedIn);
+          setUser({
+            isAuthenticated: true,
+            id: result.user._id,
+            username: result.user.username,
+          });
           setCurrentView('things');
         }
       } catch (err) {
@@ -51,11 +98,10 @@ const App = () => {
   }, []);
 
   return (
-    <div>
+    <UserContext.Provider value={{...user, setUser}}>
       <Header
         currentView={currentView}
         setCurrentView={setCurrentView}
-        isAuthenticated={isAuthenticated}
         handleLogout={handleLogout}
       />
       <div id="welcome">
@@ -68,12 +114,8 @@ const App = () => {
       <MainContainer
         currentView={currentView}
         setCurrentView={setCurrentView}
-        isAuthenticated={isAuthenticated}
-        setIsAuthenticated={setIsAuthenticated}
-        user={user}
-        setUser={setUser}
       />
-    </div>
+    </UserContext.Provider>
   )
 }
 
