@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import MainContainer from "./MainContainer";
+import React, { useState, useEffect } from 'react';
+import MainContainer from './MainContainer';
 
 const App = () => {
   const [user, setUser] = useState({ });
@@ -52,16 +52,12 @@ const App = () => {
 
   return (
     <div>
-      <nav><p>is it worth or nah</p>
-        {currentView !== 'login' && isAuthenticated === false
-          && <button onClick={() => setCurrentView('login')}>Login</button>}
-        {currentView !== 'signup' && isAuthenticated === false
-          && <button onClick={() => setCurrentView('signup')}>Signup</button>}
-        {isAuthenticated === true && currentView !== 'things'
-          && <button onClick={() => setCurrentView('things')}>View Things</button>}
-        {isAuthenticated === true
-          && <button onClick={() => handleLogout()}>Logout</button>}
-      </nav>
+      <Header
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        isAuthenticated={isAuthenticated}
+        handleLogout={handleLogout}
+      />
       <div id="welcome">
         <strong>Hello {user.username || 'stranger'}. Welcome to the voting of things.</strong>
       </div>
