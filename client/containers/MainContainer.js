@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import Form from '../components/Form';
+import UserForm from '../components/UserForm';
 import ThingContainer from './ThingContainer';
 import { UserContext } from './App';
 
@@ -9,7 +9,7 @@ const MainContainer = () => {
     <div>
       {(userData.isAuthenticated
         ? <ThingContainer />
-        : <Form endpoint={userData.currentView} />
+        : <UserForm endpoint={userData.currentView} />
       )}
     </div>
   );

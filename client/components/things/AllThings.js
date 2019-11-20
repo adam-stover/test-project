@@ -2,8 +2,18 @@ import React, { useMemo, useContext } from 'react';
 import OneThing from './OneThing';
 import { UserContext } from '../../containers/App';
 
-const AllThings = ({ things, votes, setVotes, deleteThing }) => {
+const AllThings = ({ things, setThings, votes, setVotes }) => {
   const { userData } = useContext(UserContext);
+
+  const deleteThing = (id) => {
+    const url = `/api/things/${id}`;
+    const options = {
+      method: 'DELETE',
+    };
+    setThings(oldThings => oldThings.filter(thing => thing._id !== id));
+    fetch(url, options)
+      .catch(console.error);
+  }
 
   const submitVote = (vote, thingId) => {
     const options = {

@@ -1,19 +1,40 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import useFormInput from '../../hooks/useFormInput';
 
-const ThingCreator = ({ createThing, isLoading }) => {
+const ThingForm = ({ setThings }) => {
   const { value:name, bind:bindName, reset:resetName } = useFormInput('');
   const { value:description, bind:bindDescription, reset:resetDescription } = useFormInput('');
+  const [isLoading, setIsLoading] = useState(false);
   const inputElement = useRef(null);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     inputElement.current.blur();
     if (name === '' || description === '') return;
-    await createThing(name, description);
-    resetName();
-    resetDescription();
-    inputElement.current.focus();
+    const options = {
+      method: 'POST',
+      body: JSON.stringify({
+        name,
+        description,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    setIsLoading(true);
+    fetch('/api/things', options)
+      .then(res => res.json())
+      .then(result => {
+        if (result._id) setThings(oldThings => [...oldThings, result]);
+        else console.log('failed to create thing');
+      })
+      .then(() => {
+        resetName();
+        resetDescription();
+        inputElement.current.focus();
+      })
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
@@ -40,4 +61,4 @@ const ThingCreator = ({ createThing, isLoading }) => {
     </div>
 )}
 
-export default ThingCreator;
+export default ThingForm;

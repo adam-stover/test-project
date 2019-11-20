@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import useFormInput from '../hooks/useFormInput';
 import { UserContext, actions } from '../containers/App';
 
-const Form = ({ endpoint }) => {
+const UserForm = ({ endpoint }) => {
   const { value:username, bind:bindUsername } = useFormInput('');
   const { value:password, bind:bindPassword, reset:resetPassword } = useFormInput('');
   const [result, setResult] = useState('');
@@ -76,4 +76,4 @@ const Form = ({ endpoint }) => {
   );
 }
 
-export default Form;
+export default UserForm;
