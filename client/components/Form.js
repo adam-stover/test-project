@@ -2,8 +2,8 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import useFormInput from '../hooks/useFormInput';
 import { UserContext, actions } from '../containers/App';
 
-const Signup = () => {
-  const { value:username, bind:bindUsername, reset:resetUsername } = useFormInput('');
+const Form = ({ endpoint }) => {
+  const { value:username, bind:bindUsername } = useFormInput('');
   const { value:password, bind:bindPassword, reset:resetPassword } = useFormInput('');
   const [result, setResult] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -11,7 +11,10 @@ const Signup = () => {
   const usernameElement = useRef(null);
 
   const handleSubmit = (e) => {
+    e.stopPropagation();
     e.preventDefault();
+    usernameElement.current.blur();
+    const uri = `/api/${endpoint}`;
     const options = {
       method: 'POST',
       body: JSON.stringify({
@@ -23,13 +26,13 @@ const Signup = () => {
       },
     };
     setIsLoading(true);
-    fetch('/api/signup', options)
+    resetPassword();
+    fetch(uri, options)
       .then(res => res.json())
       .then(result => {
-        resetUsername();
-        resetPassword();
+        setIsLoading(false);
         if (result.isLoggedIn) {
-          setResult('Successfully signed up!');
+          setResult('Success! Loading...');
           dispatch({
             type: actions.LOGIN,
             payload: {
@@ -44,15 +47,17 @@ const Signup = () => {
         }
       })
       .catch(console.error)
-  }
+  };
 
   useEffect(() => {
     usernameElement.current.focus();
     return () => usernameElement.current.blur();
   }, []);
 
+  const buttonText = endpoint === 'login' ? 'Login' : 'Signup';
+
   return (
-    <div id="signup">
+    <div id="form">
       <form onSubmit={handleSubmit}>
         <label>
           Username
@@ -62,13 +67,13 @@ const Signup = () => {
           Password
           <input type="password" name="password" {...bindPassword} required />
         </label>
-        <button type="submit">Signup</button>
+        <button type="submit">{buttonText}</button>
       </form>
       {isLoading ? (
-        <div>Signing up...</div>
+        <div>Submitting...</div>
       ) : result}
     </div>
   );
-};
+}
 
-export default Signup;
+export default Form;

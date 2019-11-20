@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-import Login from '../components/Login';
-import Signup from '../components/Signup';
+import Form from '../components/Form';
 import ThingContainer from './ThingContainer';
 import { UserContext } from './App';
 
@@ -8,11 +7,10 @@ const MainContainer = () => {
   const { userData } = useContext(UserContext);
   return (
     <div>
-      {userData.isAuthenticated ? (
-        <ThingContainer />
-      ) : userData.currentView === 'login' ? (
-        <Login />
-      ) : <Signup />}
+      {(userData.isAuthenticated
+        ? <ThingContainer />
+        : <Form endpoint={userData.currentView} />
+      )}
     </div>
   );
 }
