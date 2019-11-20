@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon server/server.js",
     "build": "export NODE_ENV=production; webpack",
-    "dev": "export NODE_ENV=development; concurrently \"webpack-dev-server --hotOnly\" \"nodemon server/server.js\""
+    "dev": "export NODE_ENV=development; webpack-dev-server --hotOnly & nodemon server/server.js"
   },
   "author": "Adam Stover",
   "license": "MIT",

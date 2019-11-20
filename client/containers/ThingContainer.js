@@ -18,7 +18,7 @@ const ThingContainer = () => {
       } catch (err) {
         console.error(err);
       }
-    }
+    };
     const getVotes = async () => {
       try {
         let syncedVotes = await fetch('/api/votes');
@@ -27,23 +27,21 @@ const ThingContainer = () => {
       } catch (err) {
         console.error(err);
       }
-    }
-    const getThingsAndVotes = async () => {
+    };
+    const getThingsAndVotes = () => {
       setIsLoading(true);
       setIsError(false);
-      try {
-        await Promise.all([getThings(), getVotes()]);
-      } catch (err) {
-        setIsError(true);
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+      Promise.all([getThings(), getVotes()])
+        .catch(err => {
+          setIsError(true);
+          console.error(err);
+        })
+        .finally(() => setIsLoading(false));
+    };
     getThingsAndVotes();
   }, []);
 
-  const createThing = async (name, description) => {
+  const createThing = (name, description) => {
     const options = {
       method: 'POST',
       body: JSON.stringify({
@@ -55,32 +53,23 @@ const ThingContainer = () => {
       },
     };
     setIsCreating(true);
-    try {
-      let result = await fetch('/api/things', options);
-      result = await result.json();
-      if (result._id) setThings([...things, result]);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsCreating(false);
-    }
+    fetch('/api/things', options)
+      .then(res => res.json())
+      .then(result => {
+        if (result._id) setThings(oldThings => [...oldThings, result]);
+      })
+      .catch(console.error)
+      .finally(() => setIsCreating(false));
   }
 
-  const deleteThing = async (id) => {
+  const deleteThing = (id) => {
     const url = `/api/things/${id}`;
     const options = {
       method: 'DELETE',
     };
-    const newThings = [...things];
-    setThings(newThings.filter(thing => thing._id !== id));
-    try {
-      const res = await fetch(url, options);
-      if (res.status === 200) {
-        console.log('successfully deleted');
-      }
-    } catch (err) {
-      console.error(err);
-    }
+    setThings(oldThings => oldThings.filter(thing => thing._id !== id));
+    fetch(url, options)
+      .catch(console.error);
   }
 
   return (
