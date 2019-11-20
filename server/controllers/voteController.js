@@ -63,7 +63,7 @@ voteController.createVote = async (req, res, next) => {
     values: [req.body.user_id, req.body.thing_id, req.body.vote],
   };
   try {
-    const { rows }= await db.query(query);
+    const { rows } = await db.query(query);
     res.locals.vote = rows[0];
     next();
   } catch (error) {

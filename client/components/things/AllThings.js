@@ -16,22 +16,20 @@ const AllThings = ({ things, setThings, votes, setVotes }) => {
   }
 
   const submitVote = (vote, thingId) => {
+    const newVote = {
+      user_id: userData.id,
+      thing_id: thingId,
+      vote: (vote === 'nay') ? 0 : 1,
+    };
     const options = {
       method: 'POST',
-      body: JSON.stringify({
-        user_id: userData.id,
-        thing_id: thingId,
-        vote: (vote === 'nay') ? 0 : 1,
-      }),
+      body: JSON.stringify(newVote),
       headers: {
         'Content-Type': 'application/json',
       },
     };
+    setVotes(oldVotes => [...oldVotes, newVote]);
     fetch('/api/votes', options)
-      .then(res => res.json())
-      .then(result => {
-        if (result._id) setVotes(oldVotes => [...oldVotes, result]);
-      })
       .catch(console.error);
   }
 

@@ -1,6 +1,6 @@
 {
   "name": "worth-it",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "Are these things worth my time and/or money?",
   "main": "index.js",
   "scripts": {
