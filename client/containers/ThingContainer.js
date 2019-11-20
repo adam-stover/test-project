@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ThingCreator from '../components/things/ThingCreator';
 import AllThings from '../components/things/AllThings';
 
-const ThingContainer = ({ userId }) => {
+const ThingContainer = () => {
   const [things, setThings] = useState([]);
   const [votes, setVotes] = useState([]);
   const [isError, setIsError] = useState(false);
@@ -83,46 +83,6 @@ const ThingContainer = ({ userId }) => {
     }
   }
 
-  const submitVote = async (vote, thingId) => {
-    const options = {
-      method: 'POST',
-      body: JSON.stringify({
-        user_id: userId,
-        thing_id: thingId,
-        vote: (vote === 'nay') ? 0 : 1,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-    try {
-      let result = await fetch('/api/votes', options);
-      result = await result.json();
-      if (result._id) setVotes([...votes, result]);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  const resetVote = async (thingId) => {
-    const url = `/api/votes?user=${userId}&thing=${thingId}`;
-    const options = {
-      method: 'DELETE',
-    };
-    const newVotes = [...votes];
-    setVotes(newVotes.filter(vote => (
-      vote.user_id !== userId || vote.thing_id !== thingId
-    )));
-    try {
-      const res = await fetch(url, options);
-      if (res.status === 200) {
-        console.log('Successfully reset vote');
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   return (
     <div>
       {isError && <div>Oh dear we have an error</div>}
@@ -131,7 +91,7 @@ const ThingContainer = ({ userId }) => {
       ) : <div>
         <p id="totals">Total Things: {things.length} Total Votes: {votes.length}</p>
         <ThingCreator createThing={createThing} isLoading={isCreating}/>
-        <AllThings userId={userId} things={things} votes={votes} setVotes={setVotes} deleteThing={deleteThing} submitVote={submitVote} resetVote={resetVote}/>
+        <AllThings things={things} votes={votes} setVotes={setVotes} deleteThing={deleteThing}/>
       </div>}
     </div>
 )};

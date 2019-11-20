@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import useFormInput from '../hooks/useFormInput';
+import { UserContext, actions } from '../containers/App';
 
-const Signup = (props) => {
+const Signup = () => {
   const { value:username, bind:bindUsername, reset:resetUsername } = useFormInput('');
   const { value:password, bind:bindPassword, reset:resetPassword } = useFormInput('');
-  const [signupResult, setSignupResult] = useState('');
+  const [result, setResult] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { dispatch } = useContext(UserContext);
+  const usernameElement = useRef(null);
 
-  const handleSubmit = async () => {
-    if (username === '' || password === '') return;
+  const handleSubmit = (e) => {
+    e.preventDefault();
     const options = {
       method: 'POST',
       body: JSON.stringify({
@@ -20,40 +23,52 @@ const Signup = (props) => {
       },
     };
     setIsLoading(true);
-    try {
-      const res = await fetch('/api/signup', options);
-      const result = await res.json();
-      setIsLoading(false);
-      resetUsername();
-      resetPassword();
-      if (result.isLoggedIn) {
-        setSignupResult('Successfully signed up!');
-        props.setUser(result.user);
-        props.setIsAuthenticated(true);
-        props.setCurrentView('things');
-      } else setSignupResult(result.message);
-    } catch (err) {
-      setIsLoading(false);
-      console.error(err);
-    }
+    fetch('/api/signup', options)
+      .then(res => res.json())
+      .then(result => {
+        resetUsername();
+        resetPassword();
+        if (result.isLoggedIn) {
+          setResult('Successfully signed up!');
+          dispatch({
+            type: actions.LOGIN,
+            payload: {
+              isAuthenticated: true,
+              id: result.user._id,
+              username,
+            },
+          });
+        } else {
+          setResult(result.message);
+          usernameElement.current.focus();
+        }
+      })
+      .catch(console.error)
   }
 
+  useEffect(() => {
+    usernameElement.current.focus();
+    return () => usernameElement.current.blur();
+  }, []);
+
   return (
-    <div>
-      <div>
-        <label>Username</label>
-        <input type="text" name="username" {...bindUsername} required />
-      </div>
-      <div>
-        <label>Password</label>
-        <input type="password" name="password" {...bindPassword} required />
-      </div>
-      <button onClick={() => handleSubmit()}>Signup</button>
+    <div id="signup">
+      <form onSubmit={handleSubmit}>
+        <label>
+          Username
+          <input ref={usernameElement} type="text" name="username" {...bindUsername} required />
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" {...bindPassword} required />
+        </label>
+        <button type="submit">Signup</button>
+      </form>
       {isLoading ? (
-        <div>Logging in...</div>
-      ) : signupResult}
+        <div>Signing up...</div>
+      ) : result}
     </div>
   );
-}
+};
 
 export default Signup;
