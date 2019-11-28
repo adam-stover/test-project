@@ -39,7 +39,6 @@ const ThingForm = ({ setThings }) => {
 
   useEffect(() => {
     inputElement.current.focus();
-    return () => inputElement.current.blur();
   }, []);
 
   return (

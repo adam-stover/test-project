@@ -40,11 +40,12 @@ module.exports = {
   },
   devServer: {
     proxy: {
-      '/': 'http://localhost:3000',
-      '/api': 'http://localhost:3000',
+      // '/': 'http://[::1]:3000',
+      '/api': 'http://[::1]:3000',
+      secure: false,
     },
     contentBase: path.resolve(__dirname, './client'),
     compress: true,
-    publicPath: 'http://localhost:8080/build'
+    publicPath: 'http://localhost:8080/build',
   },
 }

@@ -51,7 +51,6 @@ const UserForm = ({ endpoint }) => {
 
   useEffect(() => {
     usernameElement.current.focus();
-    return () => usernameElement.current.blur();
   }, []);
 
   const buttonText = endpoint === 'login' ? 'Login' : 'Signup';
