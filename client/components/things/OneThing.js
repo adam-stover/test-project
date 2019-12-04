@@ -20,6 +20,7 @@ const OneThing = ({ thing, score, numVotes, didUserVote, submitVote, deleteThing
         : <VoteCreator name={thing.thing} thingId={thing._id} submitVote={submitVote} />}
       <button onClick={handleDelete}>Delete</button>
     </div>
-)}
+  );
+};
 
 export default memo(OneThing);

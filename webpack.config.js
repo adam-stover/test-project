@@ -4,12 +4,10 @@ module.exports = {
   mode: process.env.NODE_ENV,
   entry: {
     main: './client/index.js',
-    things: './client/containers/ThingContainer.js',
   },
   output: {
     path: path.resolve(__dirname, 'build'),
     filename: 'bundle.js',
-    // chunkFilename: 'bob.bundle.js',
   },
   module: {
     rules: [
@@ -42,11 +40,12 @@ module.exports = {
   },
   devServer: {
     proxy: {
-      '/': 'http://localhost:3000',
-      '/api': 'http://localhost:3000',
+      // '/': 'http://[::1]:3000',
+      '/api': 'http://[::1]:3000',
+      secure: false,
     },
     contentBase: path.resolve(__dirname, './client'),
     compress: true,
-    publicPath: 'http://localhost:8080/build'
+    publicPath: 'http://localhost:8080/build',
   },
 }

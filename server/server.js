@@ -1,5 +1,8 @@
+require('dotenv').config();
 const path = require('path');
 const express = require('express');
+const fs = require('fs');
+// const https = require('https');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
@@ -81,8 +84,15 @@ app.use((err, req, res, next) => {
   errorHandler(err, req, res, next);
 });
 
+// https.createServer({
+//   key: fs.readFileSync(path.resolve(__dirname, 'key.pem')),
+//   cert: fs.readFileSync(path.resolve(__dirname, 'cert.pem')),
+// }, app).listen(PORT, () => {
+//   console.log(`Server listening on port: ${PORT}...`);
+// });
+
 app.listen(PORT, () => {
-  console.log(`Server listening on port: ${PORT}...`);
+  console.log(`Server listening on port ${PORT}...`);
 });
 
 module.exports = app;
@@ -97,8 +107,6 @@ CREATE TABLE "users" (
   OIDS=FALSE
 );
 
-
-
 CREATE TABLE "things" (
 	"_id" serial NOT NULL,
 	"thing" varchar(255) NOT NULL UNIQUE,
@@ -107,8 +115,6 @@ CREATE TABLE "things" (
 ) WITH (
   OIDS=FALSE
 );
-
-
 
 CREATE TABLE "votes" (
 	"_id" serial NOT NULL,
@@ -120,8 +126,6 @@ CREATE TABLE "votes" (
   OIDS=FALSE
 );
 
-
-
 CREATE TABLE "sessions" (
 	"_id" serial NOT NULL,
 	"user_id" integer NOT NULL,
@@ -130,10 +134,6 @@ CREATE TABLE "sessions" (
 ) WITH (
   OIDS=FALSE
 );
-
-
-
-
 
 ALTER TABLE "votes" ADD CONSTRAINT "votes_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("_id");
 ALTER TABLE "votes" ADD CONSTRAINT "votes_fk1" FOREIGN KEY ("thing_id") REFERENCES "things"("_id");

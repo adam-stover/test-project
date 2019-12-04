@@ -1,28 +1,18 @@
-import React from 'react';
-import Login from '../components/Login';
-import Signup from '../components/Signup';
+import React, { useContext } from 'react';
+import UserForm from '../components/UserForm';
 import ThingContainer from './ThingContainer';
+import { UserContext } from './App';
 
-const MainContainer = ({
-    currentView, setCurrentView,
-    isAuthenticated, setIsAuthenticated,
-    setUser, user,
-  }) => (
-  <div>
-    {isAuthenticated ? (
-      <ThingContainer userId={user._id} />
-    ) : currentView === 'login' ? (
-      <Login
-        setIsAuthenticated={setIsAuthenticated}
-        setCurrentView={setCurrentView}
-        setUser={setUser}
-      />
-    ) : <Signup
-        setIsAuthenticated={setIsAuthenticated}
-        setCurrentView={setCurrentView}
-        setUser={setUser}
-    />}
-  </div>
-);
+const MainContainer = () => {
+  const { userData } = useContext(UserContext);
+  return (
+    <div>
+      {(userData.isAuthenticated
+        ? <ThingContainer />
+        : <UserForm endpoint={userData.currentView} />
+      )}
+    </div>
+  );
+}
 
 export default MainContainer;

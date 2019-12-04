@@ -1,16 +1,58 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import OneThing from './OneThing';
+import { UserContext } from '../../containers/App';
 
-const AllThings = ({ userId, things, votes, deleteThing, submitVote, resetVote }) => {
-  const CONFIDENCE = (votes.length / things.length);
-  const PRIOR = 0.5;
+const AllThings = ({ things, setThings, votes, setVotes }) => {
+  const { userData } = useContext(UserContext);
+
+  const deleteThing = (id) => {
+    const url = `/api/things/${id}`;
+    const options = {
+      method: 'DELETE',
+    };
+    setThings(oldThings => oldThings.filter(thing => thing._id !== id));
+    fetch(url, options)
+      .catch(console.error);
+  }
+
+  const submitVote = (vote, thingId) => {
+    const newVote = {
+      user_id: userData.id,
+      thing_id: thingId,
+      vote: (vote === 'nay') ? 0 : 1,
+    };
+    const options = {
+      method: 'POST',
+      body: JSON.stringify(newVote),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    setVotes(oldVotes => [...oldVotes, newVote]);
+    fetch('/api/votes', options)
+      .catch(console.error);
+  }
+
+  const resetVote = (thingId) => {
+    const url = `/api/votes?user=${userData.id}&thing=${thingId}`;
+    const options = {
+      method: 'DELETE',
+    };
+    setVotes(oldVotes => oldVotes.filter(vote => (
+      vote.user_id !== userData.id || vote.thing_id !== thingId
+    )));
+    fetch(url, options)
+      .catch(console.error);
+  }
 
   const mapped = useMemo(() => {
+    const CONFIDENCE = (votes.length / things.length);
+    const PRIOR = 0.5;
     return things.map(thing => {
       const totalVotes = votes.filter(vote => vote.thing_id === thing._id);
       const yesVotes = totalVotes.reduce((sum, vote) => sum + vote.vote, 0);
       const posterior = Math.round(100 * ((CONFIDENCE * PRIOR + yesVotes) / (CONFIDENCE + totalVotes.length)));
-      const didUserVote = totalVotes.some(vote => vote.user_id === userId);
+      const didUserVote = totalVotes.some(vote => vote.user_id === userData.id);
       return <OneThing
         key={thing._id}
         thing={thing}
@@ -22,7 +64,7 @@ const AllThings = ({ userId, things, votes, deleteThing, submitVote, resetVote }
         deleteThing={deleteThing}
       />
     });
-  }, [things, votes]);
+  }, [things, votes, userData.id]);
 
   return (
     <div className="container">
