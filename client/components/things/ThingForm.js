@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import useFormInput from '../../hooks/useFormInput';
 
 const ThingForm = ({ setThings }) => {
   const { value:name, bind:bindName, reset:resetName } = useFormInput('');
   const { value:description, bind:bindDescription, reset:resetDescription } = useFormInput('');
   const [isLoading, setIsLoading] = useState(false);
-  const inputElement = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    inputElement.current.blur();
     if (name === '' || description === '') return;
     const options = {
       method: 'POST',
@@ -31,22 +29,17 @@ const ThingForm = ({ setThings }) => {
       .then(() => {
         resetName();
         resetDescription();
-        inputElement.current.focus();
       })
       .catch(console.error)
       .finally(() => setIsLoading(false));
   };
-
-  useEffect(() => {
-    inputElement.current.focus();
-  }, []);
 
   return (
     <div id="creator">
       <form onSubmit={handleSubmit}>
         <label className='generalInput'>
           New Thing:
-          <input ref={inputElement} type="text" name="name" {...bindName} required />
+          <input type="text" name="name" {...bindName} autoFocus required />
         </label>
         <label className='generalInput addMarginBottom'>
           Description:

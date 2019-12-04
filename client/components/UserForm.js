@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext } from 'react';
 import useFormInput from '../hooks/useFormInput';
 import { UserContext, actions } from '../containers/App';
 
@@ -8,12 +8,10 @@ const UserForm = ({ endpoint }) => {
   const [result, setResult] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { dispatch } = useContext(UserContext);
-  const usernameElement = useRef(null);
 
   const handleSubmit = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    usernameElement.current.blur();
     const uri = `/api/${endpoint}`;
     const options = {
       method: 'POST',
@@ -43,15 +41,10 @@ const UserForm = ({ endpoint }) => {
           });
         } else {
           setResult(result.message);
-          usernameElement.current.focus();
         }
       })
       .catch(console.error)
   };
-
-  useEffect(() => {
-    usernameElement.current.focus();
-  }, []);
 
   const buttonText = endpoint === 'login' ? 'Login' : 'Signup';
 
@@ -60,7 +53,7 @@ const UserForm = ({ endpoint }) => {
       <form onSubmit={handleSubmit}>
         <label>
           Username
-          <input ref={usernameElement} type="text" name="username" {...bindUsername} required />
+          <input type="text" name="username" {...bindUsername} autoFocus required />
         </label>
         <label>
           Password
